@@ -1,4 +1,6 @@
-📚 Library TalesLibrary Tales ist eine liebevoll gestaltete, blitzschnelle Web-App zur Verwaltung der familieneigenen Kinderbibliothek. Sie ist speziell für das iPad optimiert und funktioniert als "Single-File-App" komplett im Browser, ohne dass ein Backend oder eine externe Datenbank benötigt wird.Alle Daten, Bilder und Sprachaufnahmen bleiben zu 100 % lokal und privat auf dem Gerät!
+📚 Library Tales
+
+Library Tales ist eine liebevoll gestaltete, blitzschnelle Web-App zur Verwaltung der familieneigenen Kinderbibliothek. Sie ist speziell für das iPad optimiert und funktioniert als "Single-File-App" komplett im Browser, ohne dass ein Backend oder eine externe Datenbank benötigt wird.Alle Daten, Bilder und Sprachaufnahmen bleiben zu 100 % lokal und privat auf dem Gerät!
 
 🌱 Hinweis: Dieses Projekt befindet sich aktuell noch in den Kinderschuhen und wird als Herzensprojekt stetig weiterentwickelt. Feedback und neue Ideen sind jederzeit willkommen!
 
