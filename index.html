@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="de" class="light">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Library Tales"/>
+<meta name="theme-color" content="#fff8f5"/>
+<title>Library Tales</title>
+
+<!-- Tailwind & Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+<!-- Fonts & Icons -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,700;0,800;1,800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<!-- Scanner Library -->
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "tertiary-dim": "#665100", "on-tertiary-fixed-variant": "#675200", "tertiary-container": "#f9d461",
+                    "surface-variant": "#ede0d8", "primary-container": "#ffac9a", "on-tertiary-container": "#5c4900",
+                    "error-dim": "#770326", "inverse-primary": "#ff8b71", "on-secondary-fixed": "#034e3d",
+                    "secondary-dim": "#1b5d4b", "inverse-on-surface": "#a39b97", "secondary-fixed": "#b7f9e0",
+                    "on-error-container": "#68001f", "on-secondary": "#e4fff3", "outline-variant": "#bcb0a9",
+                    "surface-container-highest": "#ede0d8", "on-background": "#38312c", "on-surface": "#38312c",
+                    "surface-tint": "#9f422d", "on-primary": "#fff7f6", "on-primary-fixed-variant": "#7d2917",
+                    "secondary-fixed-dim": "#a9ead3", "surface-bright": "#fff8f5", "on-tertiary": "#fff8ee",
+                    "outline": "#837972", "surface-container-low": "#fcf1ec", "tertiary-fixed-dim": "#eac655",
+                    "surface-container-lowest": "#ffffff", "primary": "#9f422d", "on-tertiary-fixed": "#463600",
+                    "background": "#fff8f5", "error": "#ac3149", "on-surface-variant": "#665d57",
+                    "primary-fixed": "#ffac9a", "tertiary-fixed": "#f9d461", "on-primary-container": "#71200f",
+                    "on-secondary-fixed-variant": "#2c6b59", "secondary-container": "#b7f9e0", "error-container": "#f76a80",
+                    "on-primary-fixed": "#530a00", "surface-container": "#f7ece5", "tertiary": "#745c00",
+                    "surface-container-high": "#f2e6df", "inverse-surface": "#110d0b", "surface-dim": "#e5d7cf",
+                    "surface": "#fff8f5", "on-secondary-container": "#20614f", "primary-fixed-dim": "#ff9880",
+                    "on-error": "#fff7f7", "secondary": "#2a6a57", "primary-dim": "#8f3623"
+                },
+                borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                fontFamily: { "headline": ["Plus Jakarta Sans"], "body": ["Be Vietnam Pro"], "label": ["Plus Jakarta Sans"] }
+            },
+        },
+    }
+</script>
+
+<style>
+    /* Base Styles & Typography */
+    body { min-height: max(884px, 100dvh); overscroll-behavior-y: none; -webkit-tap-highlight-color: transparent; padding-top: env(safe-area-inset-top); }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    
+    /* View Navigation */
+    .view { display: none; opacity: 0; padding-bottom: 140px; }
+    .view.active { display: block; animation: fadeIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+    /* Scan View Override */
+    #view-scan { display: block !important; position: fixed; top: -9999px; left: 0; width: 100%; height: 100dvh; pointer-events: none; overflow: hidden; z-index: 10; padding-bottom: 0; }
+    #view-scan.active { position: fixed; top: 0; pointer-events: auto; animation: fadeIn 0.3s ease forwards; }
+
+    /* Custom Shapes & Animations */
+    .soft-bounce { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
+    .soft-bounce:hover { transform: scale(1.02); }
+    .soft-bounce:active { transform: scale(0.96); }
+    .squircle { border-radius: 3rem; }
+    .squircle-lg { border-radius: 2rem; }
+    .squircle-shadow { box-shadow: 0 12px 48px -12px rgba(56, 49, 44, 0.08); }
+    .organic-shape-1 { clip-path: polygon(10% 0%, 100% 5%, 95% 90%, 5% 100%); }
+    .organic-shape-2 { clip-path: polygon(0% 10%, 90% 0%, 100% 85%, 15% 100%); }
+    .organic-shape-3 { clip-path: polygon(5% 5%, 95% 0%, 90% 95%, 0% 90%); }
+    .organic-bottom-sheet { border-top-left-radius: 4rem; border-top-right-radius: 4rem; }
+
+    /* Background Pattern */
+    .bg-pattern { background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239f422d' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+
+    /* Scanner UI */
+    .squircle-frame { border-radius: 4rem; box-shadow: 0 0 0 4000px rgba(56, 49, 44, 0.7); }
+    .scanning-beam { background: linear-gradient(to bottom, transparent, #ffac9a, transparent); height: 4px; width: 100%; animation: scan 2s linear infinite; }
+    @keyframes scan { 0% { transform: translateY(-100px); } 50% { transform: translateY(100px); } 100% { transform: translateY(-100px); } }
+    #sc video { object-fit: cover !important; width: 100% !important; height: 100% !important; position: absolute; inset: 0; }
+
+    /* Sheets */
+    .bkd { position: fixed; inset: 0; background: rgba(56, 49, 44, 0.4); backdrop-filter: blur(4px); z-index: 60; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .bkd.show { opacity: 1; pointer-events: auto; }
+    .sht { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface,#fff8f5); z-index: 61; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1); max-height: 92dvh; overflow-y: auto; }
+    .sht.show { transform: none; }
+
+    /* Utils */
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    /* Recording Animation */
+    @keyframes pulse-rec { 0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); } 50% { box-shadow: 0 0 0 8px rgba(220,38,38,0); } }
+    .recording-pulse { animation: pulse-rec 1.2s ease infinite; background-color: #dc2626 !important; color: white !important; }
+
+    /* Toast */
+    #toast { position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-100px); z-index: 999; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); pointer-events: none; }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* Confetti */
+    #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 600; overflow: hidden; }
+    .cfp { position: absolute; width: 10px; height: 14px; border-radius: 2px; top: -20px; animation: cfFall linear forwards; }
+    @keyframes cfFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+</style>
+</head>
+
+<body class="bg-background text-on-surface font-body selection:bg-primary-container selection:text-on-primary-container bg-pattern min-h-screen">
+
+<!-- Top Navigation (Sticky) -->
+<header class="bg-[#fff8f5]/90 backdrop-blur-3xl sticky top-0 z-40 border-b border-outline-variant/10">
+    <div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full overflow-hidden bg-primary-container flex items-center justify-center text-xl shadow-inner border-2 border-white">📚</div>
+            <div class="text-2xl font-black text-primary italic font-headline tracking-tight">Library Tales</div>
+        </div>
+        <button onclick="openSheet('settings')" class="p-2 text-primary hover:scale-105 transition-transform soft-bounce">
+            <span class="material-symbols-outlined text-3xl">settings</span>
+        </button>
+    </div>
+</header>
+
+<!-- VIEW: HOME -->
+<main id="view-home" class="view active max-w-7xl mx-auto px-6 pt-6 space-y-12">
+    <!-- Welcome -->
+    <section class="space-y-2">
+        <h1 class="font-headline text-5xl md:text-6xl font-extrabold tracking-tight text-on-background">
+            <span id="hgreet">Hallo!</span> 👋<br/><span class="text-primary" id="hsub">Was liest du heute?</span>
+        </h1>
+    </section>
+
+    <!-- Stats Bento Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-gradient-to-br from-primary to-primary-container p-8 squircle-lg text-on-primary soft-bounce shadow-xl shadow-primary/10">
+            <div class="flex justify-between items-start mb-6">
+                <span class="material-symbols-outlined text-4xl">auto_stories</span>
+                <span class="bg-on-primary/20 px-3 py-1 rounded-full text-xs font-bold font-label tracking-widest uppercase">Gesamt</span>
+            </div>
+            <div class="space-y-1">
+                <div class="text-5xl font-black font-headline" id="sn0">0</div>
+                <div class="text-on-primary/90 font-semibold">Bücher insgesamt</div>
+            </div>
+        </div>
+        <div class="bg-secondary-container p-8 squircle-lg text-on-secondary-container soft-bounce border border-outline-variant/10">
+            <div class="flex justify-between items-start mb-6">
+                <span class="material-symbols-outlined text-4xl">check_circle</span>
+                <span class="bg-on-secondary-container/10 px-3 py-1 rounded-full text-xs font-bold font-label tracking-widest uppercase">Bereit</span>
+            </div>
+            <div class="space-y-1">
+                <div class="text-5xl font-black font-headline" id="sn1">0</div>
+                <div class="text-on-secondary-container/80 font-semibold">Verfügbar</div>
+            </div>
+        </div>
+        <div class="bg-tertiary-container p-8 squircle-lg text-on-tertiary-container soft-bounce border border-outline-variant/10 cursor-pointer" onclick="goTo('lent')">
+            <div class="flex justify-between items-start mb-6">
+                <span class="material-symbols-outlined text-4xl">volunteer_activism</span>
+                <span class="bg-on-tertiary-container/10 px-3 py-1 rounded-full text-xs font-bold font-label tracking-widest uppercase">Weg</span>
+            </div>
+            <div class="space-y-1">
+                <div class="text-5xl font-black font-headline" id="sn2">0</div>
+                <div class="text-on-tertiary-container/80 font-semibold">Ausgeliehen</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reader Switcher (Avatar Row) -->
+    <div id="rd-switch" class="flex gap-4 overflow-x-auto no-scrollbar py-2"></div>
+
+    <!-- Surprise Me Button -->
+    <button onclick="surpriseMe()" class="w-full bg-gradient-to-r from-[#7C5CBF] to-[#A78BFA] text-white p-5 rounded-2xl font-headline font-bold text-lg shadow-lg shadow-[#7C5CBF]/30 soft-bounce flex items-center justify-center gap-3">
+        <span class="text-2xl transition-transform duration-500 hover:rotate-180">🎲</span> Überrasch mich!
+    </button>
+
+    <!-- Quick Actions -->
+    <section class="space-y-4">
+        <p class="font-headline font-extrabold text-2xl">Aktionen</p>
+        <div class="flex flex-wrap gap-4 items-center">
+            <button onclick="goTo('scan')" class="flex-1 min-w-[140px] flex items-center justify-center gap-3 bg-surface-container-highest p-4 rounded-full font-label font-bold tracking-widest uppercase text-sm soft-bounce hover:bg-primary hover:text-white transition-all shadow-sm">
+                <span class="material-symbols-outlined">qr_code_scanner</span> Scan
+            </button>
+            <button onclick="goTo('add')" class="flex-1 min-w-[140px] flex items-center justify-center gap-3 bg-surface-container-highest p-4 rounded-full font-label font-bold tracking-widest uppercase text-sm soft-bounce hover:bg-primary hover:text-white transition-all shadow-sm">
+                <span class="material-symbols-outlined">add_circle</span> Neu
+            </button>
+        </div>
+    </section>
+
+    <!-- Reading Now Section -->
+    <section id="reading-section" style="display:none" class="space-y-4">
+        <h2 class="font-headline text-2xl font-extrabold tracking-tight">📖 Du liest gerade</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" id="reading-grid"></div>
+    </section>
+
+    <!-- Favorites Section -->
+    <section id="fav-section" style="display:none" class="space-y-4">
+        <h2 class="font-headline text-2xl font-extrabold tracking-tight">⭐ Lieblinge</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" id="fav-grid"></div>
+    </section>
+
+    <!-- Recent Books -->
+    <section class="space-y-4">
+        <div class="flex justify-between items-end mb-2">
+            <h2 class="font-headline text-2xl font-extrabold tracking-tight">Neu eingetroffen</h2>
+            <button onclick="goTo('library')" class="text-primary font-bold font-label tracking-wide hover:underline decoration-2 underline-offset-4 text-sm">ALLE ANSEHEN</button>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6" id="rgrid"></div>
+    </section>
+</main>
+
+<!-- VIEW: LIBRARY -->
+<main id="view-library" class="view max-w-7xl mx-auto px-6 pt-6">
+    <header class="mb-8">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="font-headline font-extrabold text-5xl text-on-surface tracking-tight">Die <span class="text-primary italic">Bibliothek</span></h1>
+            <div class="flex gap-2">
+                <button onclick="surpriseMe()" class="w-12 h-12 bg-surface-container-highest rounded-full flex items-center justify-center text-xl soft-bounce hover:bg-tertiary-container">🎲</button>
+                <button onclick="goTo('add')" class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center soft-bounce shadow-md"><span class="material-symbols-outlined">add</span></button>
+            </div>
+        </div>
+        
+        <!-- Search -->
+        <div class="relative w-full group mb-6">
+            <div class="absolute inset-y-0 left-6 flex items-center pointer-events-none"><span class="material-symbols-outlined text-outline-variant">search</span></div>
+            <!-- Debounce applied here -->
+            <input type="search" id="lsq" oninput="onSearchInput()" placeholder="Suchen nach Titel, Autor..." 
+                   class="w-full bg-surface-container-low border-2 border-transparent rounded-2xl py-4 pl-16 pr-6 text-lg font-bold focus:border-primary-container focus:bg-surface-container-highest transition-all outline-none"/>
+        </div>
+
+        <!-- Filter Chips -->
+        <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2" id="lchips">
+            <button class="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-primary text-white shadow-md active-chip shrink-0" onclick="setFil('all', this)">Alle</button>
+            <button class="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0" onclick="setFil('available', this)">Verfügbar</button>
+            <button class="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0" onclick="setFil('lent', this)">Ausgeliehen</button>
+            <button class="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0" onclick="setFil('fav', this)">⭐ Lieblinge</button>
+            <button class="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0" onclick="setFil('reading', this)">📖 Lese gerade</button>
+            <button class="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0" onclick="setFil('done', this)">🏆 Ausgelesen</button>
+        </div>
+    </header>
+    
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8" id="lgrid"></div>
+    <div id="load-more-container" class="mt-8 flex justify-center w-full"></div>
+</main>
+
+<!-- VIEW: LENT -->
+<main id="view-lent" class="view max-w-7xl mx-auto px-6 pt-6">
+    <header class="mb-10">
+        <h1 class="font-headline font-extrabold text-5xl text-on-surface tracking-tight mb-2">Aktuell <span class="text-primary italic">Ausgeliehen</span></h1>
+    </header>
+    <div class="flex flex-col gap-4" id="ll"></div>
+</main>
+
+<!-- VIEW: ADD -->
+<main id="view-add" class="view max-w-2xl mx-auto px-6 pt-6">
+    <header class="mb-8">
+        <h1 class="font-headline font-extrabold text-4xl text-on-surface tracking-tight">Buch <span class="text-primary italic">hinzufügen</span></h1>
+    </header>
+    <div class="bg-surface-container-lowest p-6 rounded-3xl squircle-shadow border border-outline-variant/10 space-y-6">
+        <div>
+            <label class="block font-label font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-2">Titel *</label>
+            <input type="text" id="ft" placeholder="Buchtitel" class="w-full bg-surface-container border-transparent rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary-container outline-none"/>
+        </div>
+        <div>
+            <label class="block font-label font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-2">Autor / Autorin</label>
+            <input type="text" id="fa" placeholder="Name" class="w-full bg-surface-container border-transparent rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary-container outline-none"/>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block font-label font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-2">ISBN (optional)</label>
+                <input type="text" id="fi" inputmode="numeric" placeholder="z.B. 978..." class="w-full bg-surface-container border-transparent rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary-container outline-none"/>
+            </div>
+            <div>
+                <label class="block font-label font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-2">Cover-URL</label>
+                <input type="url" id="fc2" placeholder="https://..." class="w-full bg-surface-container border-transparent rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary-container outline-none"/>
+            </div>
+        </div>
+        <button onclick="saveBook()" class="w-full bg-primary text-white py-5 rounded-xl font-headline font-black text-lg tracking-wide uppercase soft-bounce mt-2 shadow-lg shadow-primary/20">Aufnehmen</button>
+    </div>
+</main>
+
+<!-- VIEW: SCAN (Fullscreen Override) -->
+<div id="view-scan">
+    <div class="absolute inset-0 z-0 bg-black"><div id="sc" class="w-full h-full opacity-80 mix-blend-screen"></div></div>
+    
+    <div class="absolute top-0 left-0 w-full p-6 z-20 flex justify-between items-center">
+        <button onclick="goTo('home')" class="w-14 h-14 bg-white/20 backdrop-blur-xl rounded-full text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg border border-white/30"><span class="material-symbols-outlined text-3xl">close</span></button>
+        <div class="px-6 py-3 bg-white/20 backdrop-blur-md rounded-full border border-white/30 flex items-center gap-2 text-white">
+            <span class="material-symbols-outlined animate-pulse">qr_code_scanner</span>
+            <span class="font-headline font-bold tracking-widest uppercase text-xs">Scanner Aktiv</span>
+        </div>
+    </div>
+
+    <div class="absolute inset-0 z-10 flex flex-col items-center justify-center pointer-events-none p-6">
+        <div class="relative w-full max-w-sm aspect-[4/3]">
+            <div class="squircle-frame absolute inset-0 border-4 border-primary-container backdrop-blur-[2px]"></div>
+            <div class="absolute top-6 left-6 w-10 h-10 border-t-8 border-l-8 border-white rounded-tl-3xl opacity-90"></div>
+            <div class="absolute top-6 right-6 w-10 h-10 border-t-8 border-r-8 border-white rounded-tr-3xl opacity-90"></div>
+            <div class="absolute bottom-6 left-6 w-10 h-10 border-b-8 border-l-8 border-white rounded-bl-3xl opacity-90"></div>
+            <div class="absolute bottom-6 right-6 w-10 h-10 border-b-8 border-r-8 border-white rounded-br-3xl opacity-90"></div>
+            <div class="absolute top-0 left-0 right-0 scanning-beam"></div>
+        </div>
+        <p class="mt-8 text-white font-body font-bold text-lg drop-shadow-md">Barcode in den Rahmen halten</p>
+    </div>
+
+    <div class="absolute bottom-10 left-0 w-full px-6 z-20 flex flex-col gap-4 max-w-lg mx-auto left-1/2 -translate-x-1/2">
+        <label class="bg-white/20 backdrop-blur-xl border border-white/30 text-white font-headline font-bold rounded-xl py-4 flex items-center justify-center gap-2 cursor-pointer soft-bounce shadow-lg">
+            <span class="material-symbols-outlined">add_photo_alternate</span> Bild aus Fotos wählen
+            <input type="file" accept="image/*" class="hidden" onchange="scanFile(this)"/>
+        </label>
+        <div class="relative">
+            <input type="text" id="misbn" inputmode="numeric" placeholder="ISBN manuell eingeben..." class="w-full bg-white/90 border-none rounded-xl py-4 pl-6 pr-16 text-on-surface font-bold outline-none"/>
+            <button onclick="lookupM()" class="absolute right-2 top-2 bottom-2 bg-primary text-white px-4 rounded-lg font-label font-bold uppercase text-sm soft-bounce">Los</button>
+        </div>
+    </div>
+</div>
+
+<!-- BOTTOM NAVIGATION -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end px-4 pb-6 h-24 bg-white/85 dark:bg-[#38312c]/85 backdrop-blur-2xl shadow-[0_-8px_32px_rgba(56,49,44,0.06)] rounded-t-[3rem] border-t-[0.5px] border-outline-variant/20">
+    <button id="nav-home" onclick="goTo('home')" class="nav-btn flex flex-col items-center justify-center bg-primary text-white rounded-full p-4 shadow-lg shadow-primary/30 -translate-y-4 transition-all scale-105 custom-bounce">
+        <span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">home</span>
+        <span class="font-label text-[10px] tracking-widest uppercase mt-1">Start</span>
+    </button>
+    <button id="nav-library" onclick="goTo('library')" class="nav-btn flex flex-col items-center justify-center text-on-surface/70 p-2 hover:bg-primary-container/20 rounded-full transition-colors group">
+        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">menu_book</span>
+        <span class="font-label text-[10px] tracking-widest uppercase mt-1">Bücher</span>
+    </button>
+    <button id="nav-scan" onclick="startCam()" class="nav-btn flex flex-col items-center justify-center text-on-surface/70 p-2 hover:bg-primary-container/20 rounded-full transition-colors group">
+        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">qr_code_scanner</span>
+        <span class="font-label text-[10px] tracking-widest uppercase mt-1">Scan</span>
+    </button>
+    <button id="nav-lent" onclick="goTo('lent')" class="nav-btn flex flex-col items-center justify-center text-on-surface/70 p-2 hover:bg-primary-container/20 rounded-full transition-colors group relative">
+        <span class="material-symbols-outlined group-hover:scale-110 transition-transform">shopping_bag</span>
+        <span class="font-label text-[10px] tracking-widest uppercase mt-1">Weg</span>
+        <div id="lbadge" class="absolute top-0 right-0 w-4 h-4 bg-error text-white rounded-full text-[9px] font-bold flex items-center justify-center border-2 border-white hidden">0</div>
+    </button>
+</nav>
+
+<!-- SHEETS -->
+
+<!-- Book Detail Sheet -->
+<div class="bkd" id="bd-book" onclick="closeSheet('book')"></div>
+<article class="sht organic-bottom-sheet squircle-shadow w-full max-w-3xl mx-auto" id="sheet-book">
+    <div class="sticky top-0 z-30 flex justify-between items-center px-8 pt-6 pb-2 bg-surface/90 backdrop-blur-md rounded-t-[4rem]">
+        <div class="w-16 h-1.5 bg-outline-variant/30 rounded-full absolute left-1/2 -translate-x-1/2 top-4"></div>
+        <h2 class="font-headline font-bold text-xl text-on-surface invisible" id="stt-book">Details</h2>
+        <button onclick="closeSheet('book')" class="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all text-on-surface-variant ml-auto">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
+    <div id="bcont" class="px-8 pb-32"></div>
+</article>
+
+<!-- Scan Result Sheet -->
+<div class="bkd" id="bd-scan" style="z-index:62" onclick="closeSheet('scan')"></div>
+<article class="sht organic-bottom-sheet squircle-shadow w-full max-w-3xl mx-auto" id="sheet-scan" style="z-index:63">
+    <div class="sticky top-0 z-30 flex justify-between items-center px-8 pt-6 pb-2 bg-surface">
+        <div class="w-16 h-1.5 bg-outline-variant/30 rounded-full absolute left-1/2 -translate-x-1/2 top-4"></div>
+        <button onclick="closeSheet('scan')" class="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all text-on-surface-variant ml-auto"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="px-8 pb-10 text-center" id="scont"></div>
+</article>
+
+<!-- Reader Profile Sheet -->
+<div class="bkd" id="bd-reader" style="z-index:62" onclick="closeSheet('reader')"></div>
+<article class="sht organic-bottom-sheet squircle-shadow w-full max-w-3xl mx-auto" id="sheet-reader" style="z-index:63">
+    <div class="sticky top-0 z-30 flex justify-between items-center px-8 pt-6 pb-2 bg-surface/90 backdrop-blur-md rounded-t-[4rem]">
+        <div class="w-16 h-1.5 bg-outline-variant/30 rounded-full absolute left-1/2 -translate-x-1/2 top-4"></div>
+        <h2 class="font-headline font-bold text-xl text-on-surface" id="rd-stt">Profil</h2>
+        <button onclick="closeSheet('reader')" class="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all text-on-surface-variant ml-auto"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="px-6 pb-12" id="rd-cont"></div>
+</article>
+
+<!-- Persons Sheet -->
+<div class="bkd" id="bd-persons" style="z-index:64" onclick="closeSheet('persons')"></div>
+<article class="sht organic-bottom-sheet squircle-shadow w-full max-w-3xl mx-auto" id="sheet-persons" style="z-index:65">
+    <div class="sticky top-0 z-30 flex justify-between items-center px-8 pt-6 pb-4 bg-surface rounded-t-[4rem]">
+        <div class="w-16 h-1.5 bg-outline-variant/30 rounded-full absolute left-1/2 -translate-x-1/2 top-4"></div>
+        <h2 class="font-headline font-bold text-2xl text-on-surface">Personen</h2>
+        <button onclick="closeSheet('persons')" class="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center soft-bounce text-on-surface-variant"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="px-8 pb-10">
+        <p class="text-on-surface-variant mb-6 font-medium">Lege Familie und Freunde an.</p>
+        <div class="bg-surface-container-low rounded-3xl p-5 mb-8 border border-outline-variant/10">
+            <p class="font-label font-bold text-xs uppercase tracking-widest text-primary mb-3">Neuer Leser</p>
+            <div class="flex flex-wrap gap-2 mb-4" id="emo-pick"></div>
+            <div class="flex gap-3 mb-4">
+                <input type="text" id="pm-input" placeholder="Name eingeben..." class="flex-1 bg-surface border-2 border-transparent focus:border-primary-container rounded-xl px-4 py-3 font-bold outline-none"/>
+                <button onclick="addPerson()" class="bg-primary text-white w-14 rounded-xl flex items-center justify-center soft-bounce"><span class="material-symbols-outlined">add</span></button>
+            </div>
+            <label class="flex items-center gap-3 p-3 bg-surface-container-highest rounded-xl cursor-pointer soft-bounce">
+                <input type="checkbox" id="pm-reads" checked class="w-5 h-5 accent-primary rounded"/>
+                <span class="font-bold text-sm">📚 Eigene Lese-Seite (Profil, Streak)</span>
+            </label>
+        </div>
+        <div class="space-y-3" id="pm-list"></div>
+    </div>
+</article>
+
+<!-- Settings Sheet -->
+<div class="bkd" id="bd-settings" style="z-index:62" onclick="closeSheet('settings')"></div>
+<article class="sht organic-bottom-sheet squircle-shadow w-full max-w-3xl mx-auto" id="sheet-settings" style="z-index:63">
+    <div class="sticky top-0 z-30 flex justify-between items-center px-8 pt-6 pb-4 bg-surface rounded-t-[4rem]">
+        <div class="w-16 h-1.5 bg-outline-variant/30 rounded-full absolute left-1/2 -translate-x-1/2 top-4"></div>
+        <h2 class="font-headline font-bold text-3xl text-on-surface">Einstellungen</h2>
+        <button onclick="closeSheet('settings')" class="w-10 h-10 bg-surface-container-highest rounded-full flex items-center justify-center soft-bounce text-on-surface-variant"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="px-8 pb-16 space-y-8">
+        <section>
+            <p class="font-label font-bold text-xs uppercase tracking-widest text-primary mb-4">Familie</p>
+            <div class="bg-surface-container-low rounded-2xl p-5 flex items-center justify-between border border-outline-variant/10">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-secondary-container text-secondary rounded-full flex items-center justify-center"><span class="material-symbols-outlined">group</span></div>
+                    <div><div class="font-bold text-lg">Personen verwalten</div><div class="text-sm text-on-surface-variant" id="persons-count">Wer leiht Bücher aus?</div></div>
+                </div>
+                <button onclick="closeSheet('settings');setTimeout(()=>{openSheet('persons');renderPersonsMgmt();},250)" class="bg-primary text-white px-5 py-2 rounded-full font-bold text-sm soft-bounce">Bearbeiten</button>
+            </div>
+        </section>
+        <section>
+            <p class="font-label font-bold text-xs uppercase tracking-widest text-primary mb-4">Datenbank</p>
+            <div class="space-y-3">
+                <div class="bg-surface-container-low rounded-2xl p-5 flex items-center justify-between border border-outline-variant/10">
+                    <div><div class="font-bold text-lg">Covers aktualisieren</div><div class="text-sm text-on-surface-variant" id="cover-ss">Sucht bessere Bilder online</div></div>
+                    <button id="cover-btn" onclick="refreshCovers()" class="bg-surface-container-highest px-5 py-2 rounded-full font-bold text-sm soft-bounce">Laden</button>
+                </div>
+                <div class="bg-surface-container-low rounded-2xl p-5 flex items-center justify-between border border-outline-variant/10">
+                    <div><div class="font-bold text-lg">Backup exportieren</div><div class="text-sm text-on-surface-variant">Speichert alles inkl. Audio</div></div>
+                    <button onclick="exportBak()" class="bg-surface-container-highest px-5 py-2 rounded-full font-bold text-sm soft-bounce">Export</button>
+                </div>
+                <div class="bg-surface-container-low rounded-2xl p-5 flex items-center justify-between border border-outline-variant/10">
+                    <div><div class="font-bold text-lg">Backup importieren</div><div class="text-sm text-on-surface-variant">Bücher wiederherstellen</div></div>
+                    <label class="bg-surface-container-highest px-5 py-2 rounded-full font-bold text-sm soft-bounce cursor-pointer">
+                        Import <input type="file" accept=".json,application/json" class="hidden" onchange="importBak(this)"/>
+                    </label>
+                </div>
+            </div>
+        </section>
+        <section>
+            <div class="bg-error-container/20 rounded-2xl p-5 flex items-center justify-between border border-error-container/30">
+                <div><div class="font-bold text-lg text-error">Alle Bücher löschen</div><div class="text-sm text-error/80">Nicht rückgängig machbar!</div></div>
+                <button onclick="delAll()" class="bg-error text-white px-5 py-2 rounded-full font-bold text-sm soft-bounce">Löschen</button>
+            </div>
+        </section>
+    </div>
+</article>
+
+<div id="toast" class="bg-inverse-surface text-inverse-on-surface px-6 py-4 rounded-full font-bold text-center shadow-2xl flex items-center gap-3"></div>
+<div id="confetti"></div>
+
+<script>
+/* =====================================================================
+   DATENMODELL & MIGRATION
+   ===================================================================== */
+const DB=(()=>{
+  let _d=null;
+  const p=r=>new Promise((s,f)=>{r.onsuccess=()=>s(r.result);r.onerror=()=>f(r.error);});
+  const t=(store,m)=>_d.transaction(store,m).objectStore(store);
+  return{
+    open(){return new Promise((s,f)=>{
+      const r=indexedDB.open('bib7',4);
+      r.onupgradeneeded=e=>{
+        const d=e.target.result;
+        if(!d.objectStoreNames.contains('books'))   d.createObjectStore('books',{keyPath:'id'});
+        if(!d.objectStoreNames.contains('persons')) d.createObjectStore('persons',{keyPath:'id'});
+        if(!d.objectStoreNames.contains('voice'))   d.createObjectStore('voice',{keyPath:'id'});
+      };
+      r.onsuccess=e=>{_d=e.target.result;s();};r.onerror=()=>f(r.error);
+    });},
+    all:   ()   => p(t('books').getAll()),
+    get:   id   => p(t('books').get(id)),
+    put:   b    => p(t('books','readwrite').put(b)),
+    del:   id   => p(t('books','readwrite').delete(id)),
+    clr:   ()   => p(t('books','readwrite').clear()),
+    pAll:  ()   => p(t('persons').getAll()),
+    pPut:  per  => p(t('persons','readwrite').put(per)),
+    pDel:  id   => p(t('persons','readwrite').delete(id)),
+    vPut:  v    => p(t('voice','readwrite').put(v)),
+    vGet:  id   => p(t('voice').get(id)),
+    vDel:  id   => p(t('voice','readwrite').delete(id)),
+    vAll:  ()   => p(t('voice').getAll()),
+    vClr:  ()   => p(t('voice','readwrite').clear()),
+  };
+})();
+
+/* Utils */
+const e=s=>(s??'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+const isRealCover=u=>!!u && /^(https?:\/\/|data:image\/)/i.test(u) && !u.includes('covers.openlibrary.org/b/isbn');
+const fmtDate=ts=>!ts?'':new Date(ts).toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit',year:'numeric'});
+const fmtDur=s=>{s=Math.round(s);return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;};
+
+/* Gradients */
+const GR=['from-primary-container to-tertiary-container','from-secondary-container to-primary-container','from-tertiary-container to-primary-container','from-inverse-primary to-secondary-container'];
+const gr=id=>GR[[...String(id)].reduce((s,c)=>s+c.charCodeAt(0),0)%GR.length];
+const grIcon=id=>['auto_stories','menu_book','park','cruelty_free','rocket_launch'][[...String(id)].reduce((s,c)=>s+c.charCodeAt(0),0)%5];
+const shp = ['organic-shape-1','organic-shape-2','organic-shape-3'];
+
+/* STATE & Performance Variables */
+let books=[],persons=[],cur='home',fil='all',scanner=null,scRun=false,scLock=false,pend=null;
+let selPerson=null,selEmo='😊';
+let mediaRec=null,recChunks=[],recStart=0,recBookId=null;
+let activeReader=null; 
+let libLimit = 40; // Performance: Render limit for library
+let searchTimeout = null; // Performance: Debounce timeout
+
+/* Migration */
+function migrateBook(b){
+  if(b.notes===undefined) b.notes='';
+  if(!Array.isArray(b.voiceMemos)) b.voiceMemos=[];
+  if(!b.addedAt) b.addedAt=Date.now();
+  if(!b.byPerson || typeof b.byPerson!=='object') b.byPerson={};
+  if(b.readStatus!==undefined||b.fav!==undefined||b.timesRead!==undefined){
+    const firstReader=(persons.find(p=>p.reads)||persons[0]);
+    if(firstReader){
+      const pid=firstReader.id;
+      if(!b.byPerson[pid])b.byPerson[pid]={status:'todo',fav:false,finishedDates:[]};
+      if(b.readStatus)b.byPerson[pid].status=b.readStatus;
+      if(b.fav)b.byPerson[pid].fav=true;
+      if(b.finishedAt)b.byPerson[pid].finishedAt=b.finishedAt;
+      if(b.readingStartedAt)b.byPerson[pid].readingStartedAt=b.readingStartedAt;
+      if(b.timesRead>0){
+        const arr=[];const base=b.finishedAt||Date.now();
+        for(let i=0;i<b.timesRead;i++)arr.push(base-i*86400000);
+        b.byPerson[pid].finishedDates=arr;
+      }
+    }
+    delete b.readStatus;delete b.fav;delete b.timesRead;
+    delete b.finishedAt;delete b.readingStartedAt;
+  }
+  return b;
+}
+function migratePerson(p){ if(p.reads===undefined)p.reads=true; return p; }
+function readers(){return persons.filter(p=>p.reads);}
+function activeP(){return persons.find(p=>p.id===activeReader)||readers()[0]||null;}
+function bp(b,pid){
+  pid=pid||(activeP()&&activeP().id);
+  if(!pid)return{status:'todo',fav:false,finishedDates:[]};
+  return b.byPerson[pid]||{status:'todo',fav:false,finishedDates:[]};
+}
+function setActive(pid){ activeReader=pid; try{localStorage.setItem('bib_active',pid||'');}catch(_){} }
+
+async function loadAll(){
+  persons=(await DB.pAll()).map(migratePerson);
+  books=(await DB.all()).map(migrateBook);
+  if(!activeReader){ try{const s=localStorage.getItem('bib_active');if(s)activeReader=s;}catch(_){} }
+  if(!activeP() && readers()[0])activeReader=readers()[0].id;
+}
+
+/* Audio / Visual FX */
+let _tt=null;
+function toast(m,t='',d=3000){
+  const el=document.getElementById('toast');
+  let ico = t==='ok'?'check_circle':t==='err'?'error':'info';
+  el.innerHTML = `<span class="material-symbols-outlined text-${t==='ok'?'secondary-fixed':t==='err'?'error-container':'primary-fixed'}">${ico}</span> <span>${m}</span>`;
+  el.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>el.classList.remove('show'),d);
+}
+function htst(){ clearTimeout(_tt); document.getElementById('toast').classList.remove('show'); }
+function vib(p){ if(navigator.vibrate) try{navigator.vibrate(p||[10]);}catch(_){} }
+
+function playBling(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
+    const ctx=new AC();const o=ctx.createOscillator();const g=ctx.createGain();
+    o.connect(g);g.connect(ctx.destination);o.type='sine';
+    o.frequency.setValueAtTime(1046.50,ctx.currentTime); o.frequency.setValueAtTime(1318.51,ctx.currentTime+0.1);
+    g.gain.setValueAtTime(0,ctx.currentTime); g.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.05); g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
+    o.start(ctx.currentTime);o.stop(ctx.currentTime+0.5);
+  }catch(_){}
+}
+function playTriumph(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
+    const ctx=new AC(); const notes=[523.25,659.25,783.99,1046.50]; 
+    notes.forEach((f,i)=>{
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);o.type='triangle';
+      const t=ctx.currentTime+i*0.10;
+      o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(0,t);
+      g.gain.linearRampToValueAtTime(0.18,t+0.04); g.gain.exponentialRampToValueAtTime(0.001,t+0.45);
+      o.start(t);o.stop(t+0.5);
+    });
+  }catch(_){}
+}
+function confetti(n=80){
+  const wrap=document.getElementById('confetti'); const colors=['#FF6B35','#7C5CBF','#16A34A','#F59E0B','#EC4899','#0EA5E9','#FDE68A'];
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div'); p.className='cfp';
+    p.style.left=Math.random()*100+'vw'; p.style.background=colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration=(2.4+Math.random()*1.6)+'s'; p.style.animationDelay=(Math.random()*0.4)+'s';
+    p.style.transform='rotate('+(Math.random()*360)+'deg)';
+    p.style.width=(6+Math.random()*8)+'px'; p.style.height=(10+Math.random()*8)+'px';
+    wrap.appendChild(p); setTimeout(()=>p.remove(),4500);
+  }
+}
+
+/* NAVIGATION */
+function goTo(v){
+  if(v===cur && v!=='scan')return;
+  
+  // PERFORMANCE FIX: Immer Scanner stoppen, wenn View gewechselt wird!
+  if(cur==='scan' && v!=='scan') { stopCam(); }
+  
+  if(cur==='scan'){ document.getElementById('view-scan').classList.remove('active'); } 
+  else { const o=document.getElementById('view-'+cur); if(o)o.classList.remove('active'); }
+  
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+      btn.className = "nav-btn flex flex-col items-center justify-center text-on-surface/70 p-2 hover:bg-primary-container/20 rounded-full transition-colors group";
+      btn.querySelector('span:first-child').style.fontVariationSettings = "'FILL' 0";
+  });
+  
+  cur=v;
+  if(v==='scan'){ document.getElementById('view-scan').classList.add('active'); } 
+  else { const nv=document.getElementById('view-'+v); if(nv)nv.classList.add('active'); window.scrollTo({top:0,behavior:'instant'}); }
+  
+  const act = document.getElementById('nav-'+v);
+  if(act && v!=='add'){ 
+      act.className = "nav-btn flex flex-col items-center justify-center bg-primary text-white rounded-full p-4 shadow-lg shadow-primary/30 -translate-y-4 transition-all scale-105 custom-bounce";
+      act.querySelector('span:first-child').style.fontVariationSettings = "'FILL' 1";
+  }
+
+  if(v==='home')renderHome();
+  if(v==='library') { libLimit = 40; renderLib(); } // Reset limit on view entry
+  if(v==='lent')renderLent();
+  if(v==='add')clrForm();
+}
+
+function openSheet(id){ document.getElementById('bd-'+id).classList.add('show'); document.getElementById('sheet-'+id).classList.add('show'); }
+function closeSheet(id){ document.getElementById('bd-'+id).classList.remove('show'); document.getElementById('sheet-'+id).classList.remove('show'); if(id==='scan'){pend=null;scLock=false;} if(id==='book'){stopRec(true);} }
+
+/* CARDS */
+function crdH(b, i=0){
+  const cov = isRealCover(b.coverUrl)
+    ? `<img src="${e(b.coverUrl)}" class="w-full h-full object-cover ${shp[i%3]}" loading="lazy" onerror="this.remove()">`
+    : `<div class="w-full h-full bg-gradient-to-br ${gr(b.id)} ${shp[i%3]} flex items-center justify-center"><span class="material-symbols-outlined text-white text-5xl opacity-50">${grIcon(b.id)}</span></div>`;
+  
+  const my = bp(b);
+  const badge = b.lent ? `<div class="absolute top-3 left-3 bg-error-container text-error px-3 py-1.5 rounded-full flex items-center gap-1 shadow-md"><span class="text-[12px]">📤</span></div>`
+                       : `<div class="absolute top-3 left-3 bg-secondary text-on-secondary px-3 py-1.5 rounded-full flex items-center gap-1 shadow-md"><span class="material-symbols-outlined text-[14px]">check_circle</span></div>`;
+  const rs = my.status==='reading' ? `<div class="absolute top-3 right-3 bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full flex items-center shadow-md">📖</div>`
+           : my.status==='done' ? `<div class="absolute top-3 right-3 bg-secondary-container text-on-secondary-container px-3 py-1.5 rounded-full flex items-center shadow-md">🏆</div>` : '';
+  const fav = my.fav ? `<div class="absolute bottom-3 right-3 text-2xl drop-shadow-md">⭐</div>` : '';
+
+  return `
+  <div class="group flex flex-col gap-3 cursor-pointer" onclick="showBk('${b.id}')" style="animation-delay:${(i%10)*30}ms">
+      <div class="relative aspect-[3/4] bg-surface-container-high squircle overflow-hidden soft-bounce shadow-sm hover:shadow-xl transition-all">
+          ${cov} ${badge} ${rs} ${fav}
+      </div>
+      <div class="px-1">
+          <h3 class="font-headline font-bold text-base leading-tight text-on-surface line-clamp-2 group-hover:text-primary transition-colors">${e(b.title)}</h3>
+          <p class="font-body text-on-surface-variant text-sm mt-1 truncate">${e(b.author||'Unbekannt')}</p>
+      </div>
+  </div>`;
+}
+
+/* HOME */
+function renderHome(){
+  const tot=books.length, lnt=books.filter(b=>b.lent).length;
+  document.getElementById('sn0').textContent=tot; document.getElementById('sn1').textContent=tot-lnt; document.getElementById('sn2').textContent=lnt;
+  const bd=document.getElementById('lbadge'); bd.textContent=lnt; bd.classList.toggle('hidden', lnt===0);
+  const h=new Date().getHours(); document.getElementById('hgreet').textContent=(h<12?'Guten Morgen':h<18?'Hallo':'Guten Abend');
+
+  renderReaderSwitcher();
+
+  const reading=books.filter(b=>bp(b).status==='reading');
+  const rsec=document.getElementById('reading-section'), rg=document.getElementById('reading-grid');
+  if(reading.length){ rsec.style.display='block'; rg.innerHTML=reading.slice(0,5).map(crdH).join(''); } else { rsec.style.display='none'; }
+
+  const favs=books.filter(b=>bp(b).fav);
+  const fsec=document.getElementById('fav-section'), fg=document.getElementById('fav-grid');
+  if(favs.length){ fsec.style.display='block'; fg.innerHTML=favs.slice(0,5).map(crdH).join(''); } else { fsec.style.display='none'; }
+
+  const rec=[...books].sort((a,b)=>(b.addedAt||0)-(a.addedAt||0)).slice(0,5);
+  const g=document.getElementById('rgrid');
+  if(!rec.length) g.innerHTML='<div class="col-span-full p-8 text-center bg-surface-container-low rounded-3xl border border-dashed border-outline-variant/50"><p class="font-bold text-on-surface-variant">Noch keine Bücher hier!</p></div>';
+  else g.innerHTML=rec.map(crdH).join('');
+}
+
+/* READER SWITCHER */
+function renderReaderSwitcher(){
+  const wrap=document.getElementById('rd-switch'); if(!wrap)return;
+  const rs=readers();
+  if(!rs.length){
+    wrap.innerHTML=`<button class="flex flex-col items-center gap-2 p-4 rounded-3xl border-2 border-dashed border-outline-variant/50 text-outline-variant" onclick="openSheet('persons');renderPersonsMgmt()"><span class="text-3xl">➕</span><span class="font-bold text-xs">Profil anlegen</span></button>`;
+    return;
+  }
+  const ap=activeP();
+  wrap.innerHTML=rs.map(p=>`
+    <button class="flex flex-col items-center justify-center gap-2 p-4 rounded-[2rem] border-4 transition-all min-w-[80px] soft-bounce shrink-0 ${ap&&ap.id===p.id?'border-primary bg-primary-container/20':'border-transparent bg-surface-container-highest/50 hover:bg-surface-container-highest'}" 
+      onclick="${ap&&ap.id===p.id?`showReader('${p.id}')`:`switchReader('${p.id}')`}">
+      <span class="text-4xl leading-none drop-shadow-sm">${p.emoji}</span>
+      <span class="font-headline font-black text-xs ${ap&&ap.id===p.id?'text-primary':'text-on-surface-variant'}">${e(p.name)}</span>
+    </button>
+  `).join('') + `<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-[2rem] border-2 border-dashed border-outline-variant/40 text-outline-variant min-w-[80px] soft-bounce shrink-0 hover:bg-surface-container-highest/50" onclick="openSheet('persons');renderPersonsMgmt()"><span class="text-3xl opacity-50">➕</span><span class="font-headline font-bold text-xs">Neu</span></button>`;
+}
+
+/* READER PROFILE */
+function showReader(pid){
+  const p=persons.find(x=>x.id===pid);if(!p)return;
+  document.getElementById('rd-stt').textContent=`Profil`;
+  renderReader(pid); openSheet('reader');
+}
+function calcStreak(dates){
+  if(!dates||!dates.length)return 0;
+  const wks=new Set(dates.map(t=>{ const d=new Date(t);d.setHours(0,0,0,0); const dow=(d.getDay()+6)%7; d.setDate(d.getDate()-dow); return d.getTime(); }));
+  let streak=0; const now=new Date();now.setHours(0,0,0,0); const dow=(now.getDay()+6)%7;now.setDate(now.getDate()-dow);
+  let cur=now.getTime(); while(wks.has(cur)){streak++;cur-=7*86400000;}
+  return streak;
+}
+function renderReader(pid){
+  const p=persons.find(x=>x.id===pid);if(!p)return;
+  const cont=document.getElementById('rd-cont');
+  const done=books.filter(b=>bp(b,pid).status==='done');
+  const reading=books.filter(b=>bp(b,pid).status==='reading');
+  const favs=books.filter(b=>bp(b,pid).fav);
+  const allDates=books.flatMap(b=>(bp(b,pid).finishedDates||[]));
+  const totalReads=allDates.length;
+  const wkAgo=Date.now()-7*86400000; const thisWeek=allDates.filter(t=>t>=wkAgo).length;
+  const yrAgo=new Date();yrAgo.setMonth(0,1);yrAgo.setHours(0,0,0,0); const thisYear=allDates.filter(t=>t>=yrAgo.getTime()).length;
+  const streak=calcStreak(allDates);
+
+  const list=arr=>arr.length ? `<div class="grid grid-cols-3 sm:grid-cols-4 gap-4 mb-8">${arr.slice(0,6).map((b,i)=>crdH(b,i)).join('')}</div>` : `<p class="text-on-surface-variant text-sm mb-8 bg-surface-container-low p-4 rounded-2xl">Noch nichts.</p>`;
+
+  cont.innerHTML=`
+    <div class="flex items-center gap-6 p-6 rounded-3xl bg-gradient-to-br from-primary-container to-tertiary-container mb-6 shadow-sm">
+      <div class="text-6xl drop-shadow-md">${p.emoji}</div>
+      <div>
+        <div class="font-headline font-black text-3xl text-on-surface">${e(p.name)}</div>
+        <div class="font-body font-bold text-on-surface/80 mt-1">${totalReads} Bücher • ${favs.length} Lieblinge</div>
+      </div>
+    </div>
+
+    ${streak>0?`<div class="bg-gradient-to-r from-[#FFE08A] to-[#FF9A56] p-6 rounded-3xl mb-6 shadow-sm soft-bounce">
+      <div class="font-headline font-black text-3xl text-[#7C4A00]">🔥 ${streak} Wochen Streak</div>
+      <div class="font-bold text-[#7C4A00]/80 mt-1">${streak===1?'Diese Woche schon ein Buch geschafft!':'Klasse, du liest jede Woche!'}</div>
+    </div>`:''}
+
+    <div class="grid grid-cols-3 gap-4 mb-8">
+      <div class="bg-surface-container-highest p-4 rounded-2xl text-center"><div class="font-headline font-black text-3xl text-primary">${thisWeek}</div><div class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mt-1">Diese Woche</div></div>
+      <div class="bg-surface-container-highest p-4 rounded-2xl text-center"><div class="font-headline font-black text-3xl text-primary">${thisYear}</div><div class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mt-1">Dieses Jahr</div></div>
+      <div class="bg-surface-container-highest p-4 rounded-2xl text-center"><div class="font-headline font-black text-3xl text-primary">${totalReads}</div><div class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mt-1">Insgesamt</div></div>
+    </div>
+
+    <h3 class="font-headline font-extrabold text-xl mb-4">📖 Lese gerade</h3> ${list(reading)}
+    <h3 class="font-headline font-extrabold text-xl mb-4">⭐ Lieblinge</h3> ${list(favs)}
+    <h3 class="font-headline font-extrabold text-xl mb-4">🏆 Ausgelesen</h3> ${list(done)}
+  `;
+}
+
+/* SURPRISE ME */
+function surpriseMe(){
+  const pool=books.filter(b=>!b.lent && bp(b).status!=='done');
+  const list=pool.length?pool:books.filter(b=>!b.lent);
+  if(!list.length){toast('🤷 Keine passenden Bücher gefunden','err');return;}
+  const pick=list[Math.floor(Math.random()*list.length)];
+  vib([8,40,8]); toast('🎲 Vorschlag: '+pick.title);
+  setTimeout(()=>showBk(pick.id),300);
+}
+
+/* LIBRARY: Filter, Debounce & Pagination */
+function setFil(f,el){
+  fil=f; libLimit=40; // Reset pagination
+  document.querySelectorAll('#lchips button').forEach(c=>{ c.className="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0"; });
+  el.className="px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-primary text-white shadow-md active-chip shrink-0";
+  renderLib();
+}
+
+function onSearchInput(){
+  clearTimeout(searchTimeout);
+  // Debounce: Wait 250ms to avoid blocking UI during fast typing
+  searchTimeout = setTimeout(() => { 
+    libLimit = 40; 
+    renderLib(); 
+  }, 250);
+}
+
+function renderLib(){
+  const elQ=document.getElementById('lsq'); const q=(elQ?elQ.value:'').toLowerCase();
+  const fl=books.filter(b=>{
+    if(fil==='available'&&b.lent)return false; if(fil==='lent'&&!b.lent)return false;
+    if(fil==='fav'&&!bp(b).fav)return false; if(fil==='reading'&&bp(b).status!=='reading')return false;
+    if(fil==='done'&&bp(b).status!=='done')return false;
+    if(q)return(b.title+' '+b.author+' '+(b.isbn||'')).toLowerCase().includes(q);
+    return true;
+  });
+  const g=document.getElementById('lgrid'); 
+  const moreContainer=document.getElementById('load-more-container');
+  if(!g)return;
+  
+  if(!fl.length) {
+    g.innerHTML='<div class="col-span-full py-12 text-center text-on-surface-variant font-bold text-lg">Nichts gefunden 🧐</div>';
+    moreContainer.innerHTML='';
+    return;
+  }
+  
+  // PAGINATION
+  const visible = fl.slice(0, libLimit);
+  g.innerHTML=visible.map((b,i)=>crdH(b,i)).join('');
+  
+  if(fl.length > libLimit) {
+    moreContainer.innerHTML = `<button onclick="libLimit+=40; renderLib();" class="bg-surface-container-highest text-on-surface font-bold py-4 px-8 rounded-full shadow-sm soft-bounce flex items-center gap-2"><span class="material-symbols-outlined">expand_more</span> Mehr laden</button>`;
+  } else {
+    moreContainer.innerHTML = '';
+  }
+}
+
+/* LENT */
+function renderLent(){
+  const lb=books.filter(b=>b.lent); const l=document.getElementById('ll');if(!l)return;
+  if(!lb.length) l.innerHTML='<div class="p-12 text-center bg-surface-container-low squircle-lg border border-dashed border-outline-variant/40"><div class="text-5xl mb-4">🎉</div><h3 class="font-headline font-bold text-xl mb-2">Alles da!</h3></div>';
+  else l.innerHTML=lb.map(b=>`
+    <div class="bg-surface-container-lowest p-4 squircle-lg flex items-center gap-4 shadow-sm border border-outline-variant/5 soft-bounce">
+      <div class="w-16 h-24 bg-gradient-to-br ${gr(b.id)} rounded-xl overflow-hidden shrink-0 shadow-inner relative">
+        ${isRealCover(b.coverUrl)?`<img src="${e(b.coverUrl)}" class="w-full h-full object-cover">`:''}
+      </div>
+      <div class="flex-1 min-w-0">
+        <h3 class="font-headline font-bold text-lg truncate">${e(b.title)}</h3>
+        <p class="text-sm text-on-surface-variant truncate">${e(b.author||'–')}</p>
+        <div class="inline-flex items-center gap-1.5 mt-3 bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm"><span>🧑</span> ${e(b.lentTo)}</div>
+      </div>
+      <button onclick="retBook('${b.id}')" class="w-14 h-14 rounded-full bg-secondary text-on-secondary flex items-center justify-center shrink-0 shadow-md hover:scale-105 active:scale-95 transition-all"><span class="material-symbols-outlined text-3xl">keyboard_return</span></button>
+    </div>
+  `).join('');
+}
+async function retBook(id){
+  vib([8,50,8]);const b=await DB.get(id);if(!b)return;
+  b.lent=false;b.lentTo='';await DB.put(b);await loadAll();
+  renderLent();renderHome();if(cur==='library')renderLib();
+  toast(`📖 "${b.title}" ist zurück!`,'ok'); playBling();
+}
+
+/* BOOK SHEET */
+async function showBk(id,mode='view'){
+  const b=migrateBook(await DB.get(id));if(!b)return;
+  vib([6]); const cont=document.getElementById('bcont'); selPerson=null;
+  document.getElementById('stt-book').textContent=mode==='edit'?'Bearbeiten':'';
+
+  if(mode==='edit'){
+    cont.innerHTML=`
+      <div class="space-y-5 mt-4">
+        <div><label class="block font-label text-xs font-bold text-primary mb-1">TITEL</label><input type="text" id="et" value="${e(b.title)}" class="w-full bg-surface-container border-none rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary"/></div>
+        <div><label class="block font-label text-xs font-bold text-primary mb-1">AUTOR</label><input type="text" id="ea" value="${e(b.author)}" class="w-full bg-surface-container border-none rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary"/></div>
+        <div><label class="block font-label text-xs font-bold text-primary mb-1">ISBN</label><input type="text" id="ei" value="${e(b.isbn)}" class="w-full bg-surface-container border-none rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary"/></div>
+        <div><label class="block font-label text-xs font-bold text-primary mb-1">COVER URL</label><input type="url" id="ec" value="${e(b.coverUrl)}" class="w-full bg-surface-container border-none rounded-xl p-4 font-bold focus:ring-2 focus:ring-primary"/></div>
+        <div class="pt-4 flex gap-3">
+          <button onclick="showBk('${id}','view')" class="flex-1 bg-surface-container-highest text-on-surface font-bold py-4 rounded-xl soft-bounce">Abbrechen</button>
+          <button onclick="saveEdit('${id}')" class="flex-1 bg-primary text-white font-bold py-4 rounded-xl soft-bounce shadow-lg shadow-primary/20">Speichern</button>
+        </div>
+      </div>`;
+    openSheet('book');return;
+  }
+
+  const isL=b.lent;
+  const covH=isRealCover(b.coverUrl)
+    ? `<img src="${e(b.coverUrl)}" class="w-full h-full object-cover rounded-xl squircle-shadow border-4 border-surface" onerror="this.remove()">`
+    : `<div class="w-full h-full bg-gradient-to-br ${gr(b.id)} rounded-xl border-4 border-surface flex items-center justify-center squircle-shadow"><span class="material-symbols-outlined text-white text-7xl opacity-50">${grIcon(b.id)}</span></div>`;
+
+  const pChips=persons.length ? persons.map(p=>`<div onclick="pickPerson(this,'${e(p.name)}')" class="pchip cursor-pointer flex items-center gap-2 bg-surface-container px-4 py-2.5 rounded-full border border-outline-variant/10 hover:bg-surface-container-highest transition-all group"><span class="text-xl">${p.emoji}</span><span class="font-bold font-body">${e(p.name)}</span><span class="material-symbols-outlined text-primary scale-0 group-[.sel]:scale-100 transition-transform -ml-1 text-[20px]" style="font-variation-settings: 'FILL' 1">check_circle</span></div>`).join('') : '';
+
+  const voiceListH=(b.voiceMemos||[]).length ? `<div class="space-y-2 mt-4">${b.voiceMemos.map(v=>`
+        <div class="flex items-center gap-3 bg-surface-container-highest p-3 rounded-2xl">
+          <button class="w-12 h-12 rounded-xl bg-primary text-white flex items-center justify-center soft-bounce shadow-md" onclick="playVoice('${v.id}')"><span class="material-symbols-outlined">play_arrow</span></button>
+          <div class="flex-1 min-w-0"><div class="font-bold text-sm truncate">Aufnahme</div><div class="text-xs text-on-surface-variant">${fmtDate(v.createdAt)} • ${fmtDur(v.duration||0)}</div></div>
+          <button class="w-12 h-12 rounded-xl bg-error-container text-error flex items-center justify-center soft-bounce" onclick="delVoice('${b.id}','${v.id}')"><span class="material-symbols-outlined">delete</span></button>
+        </div>`).join('')}</div>` : '';
+
+  cont.innerHTML=`
+    <div class="relative flex flex-col items-center text-center mt-2">
+        <div class="w-48 h-64 relative transform -rotate-3 hover:rotate-0 transition-transform duration-500 z-10">
+            <div class="absolute inset-0 bg-primary/20 rounded-xl translate-x-3 translate-y-3 -z-10 blur-xl"></div>
+            ${covH}
+        </div>
+        <div class="mt-8 z-20 bg-surface/80 backdrop-blur-sm p-4 rounded-3xl shadow-sm w-full max-w-sm">
+            <div class="flex items-center justify-between gap-4 mb-2">
+              <h1 class="text-2xl font-black text-on-surface tracking-tight leading-tight font-headline text-left flex-1">${e(b.title)}</h1>
+              <button class="text-3xl transition-transform active:scale-125 hover:scale-110 drop-shadow-md ${bp(b).fav?'grayscale-0':'grayscale opacity-30'}" onclick="toggleFav('${id}')">⭐</button>
+            </div>
+            <p class="text-left text-primary font-bold font-body">${e(b.author||'Unbekannter Autor')}</p>
+            ${b.isbn?`<p class="text-left text-xs font-label uppercase tracking-widest text-on-surface-variant mt-2">ISBN ${e(b.isbn)}</p>`:''}
+        </div>
+    </div>
+
+    <!-- LESE-STATUS -->
+    <div class="mt-8">
+      ${readers().length===0 ? `<div class="bg-surface-container-low p-6 rounded-3xl text-center"><p class="font-bold text-on-surface-variant">Lege eine Lese-Person in den Einstellungen an.</p></div>` : `
+        <div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10">
+          <p class="font-label font-bold text-xs uppercase tracking-widest text-primary mb-4">Lesestatus</p>
+          ${readers().length>1 ? `<div class="flex gap-2 overflow-x-auto no-scrollbar mb-4 pb-2">${readers().map(p=>`<button class="px-4 py-2 rounded-full font-bold text-sm transition-all whitespace-nowrap border-2 ${p.id===(activeP()&&activeP().id)?'bg-primary-container/30 border-primary text-primary':'bg-surface border-transparent text-on-surface-variant hover:bg-surface-container-highest'}" onclick="switchReader('${p.id}','${id}')">${p.emoji} ${e(p.name)}</button>`).join('')}</div>` : ''}
+          <div class="grid grid-cols-3 gap-2">
+            <button class="flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all soft-bounce ${bp(b).status==='todo'?'bg-surface border-outline-variant/30':'bg-surface border-transparent text-on-surface-variant'}" onclick="setRead('${id}','todo')"><span class="text-2xl">📚</span><span class="text-xs font-bold">Neu</span></button>
+            <button class="flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all soft-bounce ${bp(b).status==='reading'?'bg-tertiary-container/30 border-tertiary text-tertiary':'bg-surface border-transparent text-on-surface-variant'}" onclick="setRead('${id}','reading')"><span class="text-2xl">📖</span><span class="text-xs font-bold">Liest</span></button>
+            <button class="flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all soft-bounce ${bp(b).status==='done'?'bg-secondary-container/40 border-secondary text-secondary':'bg-surface border-transparent text-on-surface-variant'}" onclick="setRead('${id}','done')"><span class="text-2xl">🏆</span><span class="text-xs font-bold">Fertig</span></button>
+          </div>
+          ${(()=>{
+            const others=readers().filter(p=>p.id!==(activeP()&&activeP().id));
+            const lines=others.map(p=>{const s=bp(b,p.id);if(s.status==='todo'&&!s.fav)return null; const bits=[];if(s.status==='reading')bits.push('📖 liest');if(s.status==='done')bits.push('🏆 fertig');if(s.fav)bits.push('⭐'); return bits.length?`${p.emoji} ${e(p.name)}: ${bits.join(' · ')}`:null;}).filter(Boolean);
+            return lines.length?`<div class="mt-4 p-3 bg-surface-container-highest rounded-xl text-xs font-bold text-on-surface-variant leading-relaxed">${lines.join('<br>')}</div>`:'';
+          })()}
+        </div>
+      `}
+    </div>
+
+    <!-- NOTIZEN & AUDIO -->
+    <div class="mt-6 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10">
+      <p class="font-label font-bold text-xs uppercase tracking-widest text-primary mb-4">Notizen & Zitate</p>
+      <textarea id="bk-notes" placeholder="Tolle Momente festhalten..." class="w-full bg-surface border-transparent rounded-2xl p-4 font-body font-medium text-sm focus:border-primary-container focus:ring-2 focus:ring-primary-container outline-none min-h-[100px]">${e(b.notes||'')}</textarea>
+      <div class="flex gap-2 mt-3">
+        <button onclick="saveNotes('${id}')" class="flex-1 bg-surface-container-highest text-on-surface font-bold py-3 rounded-xl soft-bounce text-sm">Speichern</button>
+        <button id="rec-btn" onclick="toggleRec('${id}')" class="flex-1 bg-error-container text-error font-bold py-3 rounded-xl soft-bounce text-sm flex items-center justify-center gap-2"><span class="material-symbols-outlined text-[20px]">mic</span> Audio</button>
+      </div>
+      ${voiceListH}
+    </div>
+
+    <!-- COVER ÄNDERN -->
+    <div class="mt-6 bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 space-y-3">
+      <p class="font-label font-bold text-xs uppercase tracking-widest text-primary mb-2">Cover anpassen</p>
+      <div class="flex gap-2">
+        <input type="url" id="cov-url" placeholder="Bild-URL..." value="${isRealCover(b.coverUrl)&&!/^data:/.test(b.coverUrl)?e(b.coverUrl):''}" class="flex-1 bg-surface border-transparent rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary outline-none"/>
+        <button onclick="saveCoverUrl('${id}')" class="bg-surface-container-highest rounded-xl px-4 soft-bounce">💾</button>
+        ${b.isbn?`<button onclick="fetchCover('${id}')" class="bg-primary-container/50 text-primary-dim rounded-xl px-4 soft-bounce">🔍</button>`:''}
+      </div>
+      <label class="w-full bg-surface-container-highest text-on-surface font-bold py-3 rounded-xl flex items-center justify-center gap-2 cursor-pointer soft-bounce text-sm">
+        <span class="material-symbols-outlined text-[20px]">add_photo_alternate</span> Foto hochladen
+        <input type="file" id="cov-file-${id}" accept="image/*" class="hidden" onchange="uploadCover('${id}',this)"/>
+      </label>
+    </div>
+
+    <!-- AUSLEIHEN -->
+    <div class="mt-6">
+      ${isL
+        ? `<div class="bg-tertiary-container/30 border-2 border-tertiary-container rounded-3xl p-6 text-center"><div class="text-4xl mb-2">📤</div><h3 class="font-headline font-bold text-lg mb-1">Verliehen an</h3><p class="text-2xl font-black text-tertiary">${e(b.lentTo)}</p></div>`
+        : `<div class="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10"><p class="font-label font-bold text-xs uppercase tracking-widest text-primary mb-4">An wen ausleihen?</p><div class="flex flex-wrap gap-2 mb-4" id="pchips-container">${pChips}</div><input type="text" id="li" placeholder="${persons.length?'Anderer Name...':'Name...'}" class="w-full bg-surface border-none rounded-xl py-3 px-4 font-bold focus:ring-2 focus:ring-primary-container outline-none transition-all"/></div>`
+      }
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="mt-10 flex gap-3 pb-4">
+        <div class="flex flex-col gap-2 shrink-0">
+            <button onclick="showBk('${id}','edit')" class="w-14 h-14 bg-surface-container-highest rounded-2xl flex items-center justify-center text-on-surface-variant hover:text-primary soft-bounce"><span class="material-symbols-outlined">edit</span></button>
+            <button onclick="delBk('${id}')" class="w-14 h-14 bg-error-container/30 rounded-2xl flex items-center justify-center text-error hover:bg-error hover:text-white soft-bounce transition-colors"><span class="material-symbols-outlined">delete</span></button>
+        </div>
+        ${isL 
+          ? `<button onclick="retBook('${id}');closeSheet('book')" class="flex-1 bg-secondary text-on-secondary rounded-2xl text-xl font-black font-headline shadow-lg shadow-secondary/30 soft-bounce flex items-center justify-center gap-2"><span class="material-symbols-outlined">keyboard_return</span> Zurück</button>`
+          : `<button onclick="lendBk('${id}')" class="flex-1 bg-primary text-white rounded-2xl text-xl font-black font-headline shadow-lg shadow-primary/30 soft-bounce flex items-center justify-center gap-2"><span class="material-symbols-outlined">shopping_bag</span> Ausleihen</button>`
+        }
+    </div>
+  `;
+  openSheet('book');
+}
+
+/* ACTIONS */
+async function toggleFav(id){
+  const ap=activeP(); if(!ap){toast('❗ Profil fehlt','err');return;}
+  const b=migrateBook(await DB.get(id));if(!b)return;
+  if(!b.byPerson[ap.id])b.byPerson[ap.id]={status:'todo',fav:false,finishedDates:[]};
+  b.byPerson[ap.id].fav=!b.byPerson[ap.id].fav;
+  await DB.put(b);await loadAll(); vib([8]); toast(b.byPerson[ap.id].fav?`⭐ Liebling!`:'Stern entfernt');
+  showBk(id);renderHome();if(cur==='library')renderLib();
+}
+async function setRead(id,status){
+  const ap=activeP(); if(!ap){toast('❗ Profil fehlt','err');return;}
+  const b=migrateBook(await DB.get(id));if(!b)return;
+  if(!b.byPerson[ap.id])b.byPerson[ap.id]={status:'todo',fav:false,finishedDates:[]};
+  const my=b.byPerson[ap.id], wasDone=my.status==='done';
+  my.status=status; const t=Date.now();
+  if(status==='reading' && !my.readingStartedAt) my.readingStartedAt=t;
+  if(status==='done'){ my.finishedAt=t; if(!Array.isArray(my.finishedDates))my.finishedDates=[]; if(!wasDone)my.finishedDates.push(t); }
+  if(status!=='reading') my.readingStartedAt=null;
+  await DB.put(b);await loadAll(); vib([10,30,10]);
+  if(status==='done' && !wasDone){ confetti(110);playTriumph();toast(`🏆 Ausgelesen!`,'ok',3500); }
+  else if(status==='reading'){ toast(`📖 Liest jetzt`,'ok'); }
+  else { toast('Status aktualisiert','ok'); }
+  showBk(id);renderHome();if(cur==='library')renderLib();
+}
+function switchReader(pid,bookId){ setActive(pid); vib([6]); if(bookId)showBk(bookId); renderHome();if(cur==='library')renderLib(); }
+
+async function saveNotes(id){
+  const b=migrateBook(await DB.get(id));if(!b)return;
+  b.notes=(document.getElementById('bk-notes')?.value||'').trim();
+  await DB.put(b);await loadAll(); vib([8]);toast('📝 Gespeichert','ok');
+}
+
+/* VOICE MEMOS */
+async function toggleRec(bookId){
+  const btn=document.getElementById('rec-btn');
+  if(mediaRec && mediaRec.state==='recording'){ return stopRec(false); }
+  if(!navigator.mediaDevices || !window.MediaRecorder){ toast('🎙️ Nicht unterstützt','err');return; }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    let mime=''; if(MediaRecorder.isTypeSupported) { if(MediaRecorder.isTypeSupported('audio/mp4')) mime='audio/mp4'; else if(MediaRecorder.isTypeSupported('audio/webm')) mime='audio/webm'; }
+    mediaRec=mime?new MediaRecorder(stream,{mimeType:mime}):new MediaRecorder(stream);
+    recChunks=[];recBookId=bookId;recStart=Date.now();
+    mediaRec.ondataavailable=ev=>{if(ev.data.size>0)recChunks.push(ev.data);};
+    mediaRec.onstop=async()=>{
+      stream.getTracks().forEach(t=>t.stop());
+      const blob=new Blob(recChunks,{type:mediaRec.mimeType||'audio/webm'}); const dur=(Date.now()-recStart)/1000;
+      if(blob.size<200){toast('🎙️ Zu kurz','err');return;}
+      const vid='v_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7);
+      await DB.vPut({id:vid,bookId:recBookId,blob,createdAt:Date.now(),duration:dur,mime:blob.type});
+      const b=migrateBook(await DB.get(recBookId)); b.voiceMemos.push({id:vid,createdAt:Date.now(),duration:dur});
+      await DB.put(b);await loadAll(); vib([10,30,10]);toast('🎙️ Gespeichert','ok'); showBk(recBookId);
+    };
+    mediaRec.start();
+    btn.classList.add('recording-pulse'); btn.innerHTML='<span class="material-symbols-outlined">stop</span> 00:00';
+    const t0=Date.now();
+    btn.dataset.timer=setInterval(()=>{
+      const s=Math.floor((Date.now()-t0)/1000); btn.innerHTML='<span class="material-symbols-outlined">stop</span> '+fmtDur(s);
+      if(s>=120){ stopRec(false); }
+    },500);
+    vib([6]);
+  }catch(err){ toast('🎙️ Mikrofon verweigert','err'); }
+}
+function stopRec(silent){
+  const btn=document.getElementById('rec-btn');
+  if(btn && btn.dataset.timer){ clearInterval(+btn.dataset.timer); btn.dataset.timer=''; }
+  if(btn){btn.classList.remove('recording-pulse');btn.innerHTML='<span class="material-symbols-outlined text-[20px]">mic</span> Audio';}
+  if(mediaRec && mediaRec.state==='recording'){ try{ mediaRec.stop(); }catch(_){} }
+  if(silent){ recChunks=[]; mediaRec=null; }
+}
+let _curAudioUrl=null,_curAudio=null;
+async function playVoice(vid){
+  const v=await DB.vGet(vid); if(!v){toast('Nicht gefunden','err');return;}
+  if(_curAudio){try{_curAudio.pause();}catch(_){}}
+  if(_curAudioUrl){URL.revokeObjectURL(_curAudioUrl);_curAudioUrl=null;}
+  _curAudioUrl=URL.createObjectURL(v.blob); _curAudio=new Audio(_curAudioUrl);
+  _curAudio.play().catch(()=>toast('Abspielfehler','err')); vib([6]);
+}
+async function delVoice(bookId,vid){
+  if(!confirm('Aufnahme löschen?'))return;
+  await DB.vDel(vid); const b=migrateBook(await DB.get(bookId));
+  b.voiceMemos=(b.voiceMemos||[]).filter(v=>v.id!==vid);
+  await DB.put(b);await loadAll(); toast('Gelöscht','ok'); showBk(bookId);
+}
+
+/* LEND / EDIT / DEL */
+function pickPerson(el,name){
+  document.querySelectorAll('#pchips-container .pchip').forEach(c=>c.classList.remove('sel','border-primary','bg-primary-container/20'));
+  if(selPerson===name){ selPerson=null; } else { el.classList.add('sel','border-primary','bg-primary-container/20');selPerson=name; const i=document.getElementById('li');if(i)i.value=''; } vib([6]);
+}
+async function lendBk(id){
+  const m=document.getElementById('li')?.value.trim()||''; const n=selPerson||m;
+  if(!n){toast('❗ Person angeben','err');return;}
+  const b=migrateBook(await DB.get(id));if(!b)return;
+  b.lent=true;b.lentTo=n;b.lentAt=Date.now(); await DB.put(b);await loadAll();
+  vib([10,40,10]);toast(`📤 An ${n} verliehen`,'ok'); closeSheet('book');renderHome();if(cur==='library')renderLib();if(cur==='lent')renderLent();
+}
+async function saveEdit(id){
+  const t=document.getElementById('et')?.value.trim()||''; if(!t){toast('❗ Titel fehlt','err');return;}
+  const b=migrateBook(await DB.get(id));if(!b)return;
+  b.title=t; b.author=document.getElementById('ea')?.value||''; b.isbn=(document.getElementById('ei')?.value||'').replace(/[^0-9Xx]/g,''); b.coverUrl=document.getElementById('ec')?.value||'';
+  await DB.put(b);await loadAll(); vib([10,30,10]);toast('✅ Gespeichert','ok'); showBk(id);renderHome();if(cur==='library')renderLib();
+}
+async function delBk(id){
+  const b=await DB.get(id);if(!b)return; if(!confirm(`„${b.title}" wirklich löschen?`))return;
+  for(const v of (b.voiceMemos||[])){ try{await DB.vDel(v.id);}catch(_){} }
+  await DB.del(id);await loadAll(); vib([20]);toast('🗑️ Gelöscht','ok'); closeSheet('book');renderHome();if(cur==='library')renderLib();
+}
+
+/* ADD MANUAL */
+function clrForm(){ ['ft','fa','fi','fc2'].forEach(i=>{const x=document.getElementById(i);if(x)x.value='';}); }
+async function saveBook(pre){
+  const t=(pre?.title||document.getElementById('ft')?.value||'').trim(); if(!t){toast('❗ Titel fehlt','err');return;}
+  const b={ id:'b_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,6), title:t, author:pre?.author||document.getElementById('fa')?.value||'', isbn:(pre?.isbn||document.getElementById('fi')?.value||'').replace(/[^0-9Xx]/g,''), coverUrl:pre?.coverUrl||document.getElementById('fc2')?.value||'', lent:false,lentTo:'',addedAt:Date.now(), notes:'',voiceMemos:[],byPerson:{} };
+  await DB.put(b);await loadAll(); vib([10,30,10]);toast('📚 Hinzugefügt','ok');playBling(); clrForm();goTo('library');
+  if(b.isbn && !isRealCover(b.coverUrl)){
+    findCover(b.isbn).then(async url=>{
+      if(url){ const f=await DB.get(b.id); if(f && !isRealCover(f.coverUrl)){ f.coverUrl=url;await DB.put(f);await loadAll();toast('🖼️ Cover geladen','ok');renderHome();if(cur==='library')renderLib(); } }
+    });
+  }
+}
+
+/* COVERS */
+function probeImg(url,minBytes=800){
+  return new Promise(res=>{
+    if(!url){res(null);return;} const img=new Image(); let done=false; const t=setTimeout(()=>{if(done)return;done=true;res(null);},6000);
+    img.onload=()=>{if(done)return;done=true;clearTimeout(t);if(img.naturalWidth<40||img.naturalHeight<40){res(null);return;}res(url);};
+    img.onerror=()=>{if(done)return;done=true;clearTimeout(t);res(null);}; img.src=url;
+  });
+}
+async function srcOpenLibrary(isbn){ return probeImg(`https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`); }
+async function srcGoogleBooks(isbn){
+  try{ const r=await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&maxResults=1`); if(!r.ok)return null; const d=await r.json(); if(!d.totalItems)return null; const raw=(d.items[0].volumeInfo.imageLinks&&(d.items[0].volumeInfo.imageLinks.extraLarge||d.items[0].volumeInfo.imageLinks.large||d.items[0].volumeInfo.imageLinks.medium||d.items[0].volumeInfo.imageLinks.thumbnail||d.items[0].volumeInfo.imageLinks.smallThumbnail))||''; if(!raw)return null; return probeImg(raw.replace('http:','https:').replace('zoom=1','zoom=3').replace('&edge=curl','')); }catch(_){return null;}
+}
+async function srcOpenLibraryISBN10(isbn13){
+  if(isbn13.length!==13||!isbn13.startsWith('978'))return null; const n=isbn13.slice(3,12); let s=0;for(let i=0;i<9;i++)s+=(10-i)*parseInt(n[i],10); const r=(11-(s%11))%11; const c=r===10?'X':String(r); return probeImg(`https://covers.openlibrary.org/b/isbn/${n+c}-L.jpg?default=false`);
+}
+async function findCover(isbn){
+  if(!isbn)return null; const c=isbn.replace(/[^0-9Xx]/g,''); if(c.length<10)return null;
+  for(const fn of [srcOpenLibrary,srcGoogleBooks,srcOpenLibraryISBN10]){ try{const u=await fn(c);if(u)return u;}catch(_){} } return null;
+}
+async function saveCoverUrl(id){
+  const u=(document.getElementById('cov-url')?.value||'').trim(); const b=migrateBook(await DB.get(id));if(!b)return;
+  b.coverUrl=u;await DB.put(b);await loadAll(); vib([8,30,8]);toast('🖼️ Gespeichert','ok'); showBk(id);renderHome();if(cur==='library')renderLib();
+}
+async function fetchCover(id){
+  const b=migrateBook(await DB.get(id)); if(!b||!b.isbn){toast('❗ Keine ISBN','err');return;}
+  const url=await findCover(b.isbn);
+  if(url){ b.coverUrl=url;await DB.put(b);await loadAll(); vib([10,40,10]);toast('🖼️ Gefunden','ok'); showBk(id);renderHome();if(cur==='library')renderLib(); }
+  else { toast('❌ Nichts online gefunden','err'); }
+}
+async function uploadCover(id,input){
+  const f=input.files&&input.files[0];if(!f)return; if(!f.type.startsWith('image/')){toast('❌ Kein Bild','err');input.value='';return;} if(f.size>3*1024*1024){toast('❌ Max 3 MB','err');input.value='';return;}
+  const b=migrateBook(await DB.get(id));if(!b)return;
+  const dataUrl=await new Promise((res,rej)=>{
+    const fr=new FileReader(); fr.onload=()=>{
+      const img=new Image(); img.onload=()=>{ const sc=Math.min(1,600/img.width); const w=Math.round(img.width*sc),h=Math.round(img.height*sc); const c=document.createElement('canvas');c.width=w;c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); res(c.toDataURL('image/jpeg',0.85)); }; img.onerror=rej; img.src=fr.result;
+    }; fr.onerror=rej; fr.readAsDataURL(f);
+  });
+  b.coverUrl=dataUrl; await DB.put(b);await loadAll(); vib([10,30,10]);toast('🖼️ Cover hochgeladen','ok'); showBk(id);renderHome();if(cur==='library')renderLib(); input.value='';
+}
+
+/* SCANNER */
+async function startCam(){
+  goTo('scan'); if(typeof Html5Qrcode==='undefined'){toast('Scanner fehlerhaft','err');return;} if(scRun)return;
+  try{
+    document.getElementById('sc').innerHTML=''; scanner=new Html5Qrcode('sc');
+    await scanner.start({facingMode:'environment'},{fps:10, qrbox:(w,h)=>{const m=Math.min(w,h);return{width:Math.round(m*0.78),height:Math.round(m*0.45)};}, aspectRatio:1.0},
+      txt=>onScan(txt),()=>{}
+    ); scRun=true;
+  }catch(err){ toast('Kamera nicht verfügbar','err'); }
+}
+async function stopCam(){ if(!scanner)return; try{await scanner.stop();}catch(_){} try{await scanner.clear();}catch(_){} scanner=null;scRun=false; }
+async function onScan(txt){ if(scLock)return;scLock=true; vib([10]);playBling(); await stopCam(); await handleCode((txt||'').replace(/\s+/g,'')); }
+async function scanFile(input){
+  const f=input.files&&input.files[0];if(!f)return; if(typeof Html5Qrcode==='undefined')return;
+  try{ const tmp=new Html5Qrcode('sc',{verbose:false}); const txt=await tmp.scanFile(f,false); try{await tmp.clear();}catch(_){} playBling();await handleCode(txt); }catch(err){toast('❌ Kein Barcode gefunden','err');} input.value='';
+}
+async function lookupM(){ const v=(document.getElementById('misbn').value||'').replace(/[^0-9Xx]/g,''); if(!v){toast('ISBN eingeben','err');return;} await handleCode(v); }
+async function handleCode(code){
+  const ex=books.find(b=>(b.isbn||'').replace(/[^0-9Xx]/g,'')===code);
+  if(ex){scLock=false;showBk(ex.id);return;}
+  toast('🔍 Suche...'); document.getElementById('scont').innerHTML=`<div class="py-12"><span class="material-symbols-outlined text-6xl text-primary animate-spin">autorenew</span><p class="font-headline font-bold mt-4 text-xl">Lade Daten...</p></div>`; openSheet('scan');
+  let title='',author='',cover='';
+  const [meta,covUrl]=await Promise.all([ fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${code}&maxResults=1`).then(r=>r.ok?r.json():null).catch(()=>null), findCover(code) ]);
+  if(meta&&meta.totalItems>0){ const v=meta.items[0].volumeInfo; title=v.title||''; author=(v.authors||[]).join(', '); } if(covUrl)cover=covUrl;
+  
+  if(!title){
+    document.getElementById('scont').innerHTML=`<div class="py-8"><span class="material-symbols-outlined text-6xl text-error mb-4">search_off</span><h3 class="font-headline font-black text-2xl mb-2">Nicht gefunden</h3><p class="text-on-surface-variant">Unbekannt.</p></div><button onclick="closeSheet('scan');goTo('add');setTimeout(()=>document.getElementById('fi').value='${code}',100)" class="w-full bg-primary text-white py-4 rounded-xl font-headline font-bold soft-bounce">Manuell eintragen</button>`;
+  } else {
+    pend={title,author,coverUrl:cover,isbn:code};
+    const cHTML=cover?`<img src="${e(cover)}" class="w-full h-full object-cover">`:`<div class="w-full h-full bg-gradient-to-br ${gr(code)}"></div>`;
+    document.getElementById('scont').innerHTML=`<div class="bg-surface-container-low rounded-3xl p-6 flex flex-col items-center border border-outline-variant/20 relative mt-6"><div class="w-32 h-48 rounded-xl overflow-hidden squircle-shadow border-4 border-surface -mt-16 mb-4 relative z-10">${cHTML}</div><h3 class="font-headline font-black text-2xl leading-tight mb-1">${e(title)}</h3><p class="font-body font-bold text-primary">${e(author)}</p></div><div class="mt-6 flex flex-col gap-3"><button onclick="addFromScan()" class="w-full bg-primary text-white py-4 rounded-xl font-headline font-black text-lg uppercase soft-bounce shadow-lg shadow-primary/30">Hinzufügen</button></div>`;
+  }
+  scLock=false;
+}
+async function addFromScan(){if(!pend)return; const d=pend; pend=null; closeSheet('scan'); await saveBook(d); goTo('home');}
+
+/* PERSONS */
+const EMOS=['😊','👧','👦','👩','👨','👵','👴','🧒','🐱','🐶','🦊','🐰','🦁','🐻','🐯','🦄','⭐','💖','🌈','🚀'];
+function renderPersonsMgmt(){
+  const lst=document.getElementById('pm-list');
+  lst.innerHTML=persons.length ? persons.map(p=>`
+    <div class="bg-surface-container-highest rounded-xl p-3 flex justify-between items-center">
+        <div class="flex items-center gap-3"><span class="text-2xl">${p.emoji}</span><div class="font-bold">${e(p.name)}</div></div>
+        <div class="flex items-center gap-2">
+          <button onclick="toggleReads('${p.id}')" class="w-10 h-10 rounded-full ${p.reads?'bg-primary-container text-primary':'bg-surface text-outline-variant'} flex items-center justify-center soft-bounce"><span class="material-symbols-outlined">menu_book</span></button>
+          <button onclick="delPerson('${p.id}')" class="w-10 h-10 rounded-full bg-error-container text-error flex items-center justify-center soft-bounce"><span class="material-symbols-outlined">delete</span></button>
+        </div>
+    </div>`).join('') : '<p class="text-center text-on-surface-variant font-bold py-4">Niemand hier.</p>';
+  document.getElementById('emo-pick').innerHTML=EMOS.map(em=>`<button onclick="pickEmo('${em}')" class="text-2xl p-2 rounded-lg ${em===selEmo?'bg-primary-container border-2 border-primary':'border-2 border-transparent'} soft-bounce">${em}</button>`).join('');
+  document.getElementById('persons-count').textContent=persons.length+' Personen';
+}
+function pickEmo(em){selEmo=em;renderPersonsMgmt();}
+async function addPerson(){
+  const inp=document.getElementById('pm-input'); const name=(inp.value||'').trim();if(!name){toast('Name fehlt','err');return;}
+  if(persons.find(p=>p.name.toLowerCase()===name.toLowerCase())){toast('Gibt es schon!','err');return;}
+  const reads=(document.getElementById('pm-reads')||{}).checked!==false;
+  const p={id:'p_'+Date.now().toString(36),name,emoji:selEmo,reads}; await DB.pPut(p);persons=(await DB.pAll()).map(migratePerson);
+  if(reads && !activeP())setActive(p.id); inp.value='';vib([8]);toast('👋 Hinzugefügt','ok');renderPersonsMgmt();renderHome();
+}
+async function toggleReads(id){
+  const p=persons.find(x=>x.id===id);if(!p)return; p.reads=!p.reads;await DB.pPut(p);persons=(await DB.pAll()).map(migratePerson);
+  if(!activeP() && readers()[0])setActive(readers()[0].id); vib([6]);toast(p.reads?`📚 Liest jetzt mit`:`Liest nicht mehr mit`); renderPersonsMgmt();renderHome();
+}
+async function delPerson(id){
+  if(!confirm('Person löschen?'))return; await DB.pDel(id);persons=(await DB.pAll()).map(migratePerson);
+  if(activeReader===id){setActive((readers()[0]&&readers()[0].id)||null);} renderPersonsMgmt();renderHome();
+}
+
+/* SETTINGS / DB */
+async function refreshCovers(){
+  const btn=document.getElementById('cover-btn'); const list=books.filter(b=>b.isbn && !isRealCover(b.coverUrl));
+  if(!list.length){toast('Alle haben ein Cover','ok');return;} if(btn){btn.textContent='⏳';btn.disabled=true;}
+  let ok=0; for(const b of list){ try{const url=await findCover(b.isbn);if(url){b.coverUrl=url;await DB.put(b);ok++;}}catch(_){} await new Promise(r=>setTimeout(r,150)); }
+  await loadAll(); if(btn){btn.textContent='Laden';btn.disabled=false;} toast(`🖼️ ${ok} neu!`, 'ok'); renderHome();if(cur==='library')renderLib();
+}
+async function exportBak(){
+  const voices=await DB.vAll(); const vMap={};
+  for(const v of voices){ vMap[v.id]={bookId:v.bookId,createdAt:v.createdAt,duration:v.duration,mime:v.mime||v.blob.type,base64:await blobToBase64(v.blob)}; }
+  const data={version:4,exportedAt:Date.now(),books,persons,voices:vMap};
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'})); a.download=`library-tales-${new Date().toISOString().slice(0,10)}.json`; a.click(); toast('📤 Exportiert','ok'); closeSheet('settings');
+}
+function blobToBase64(blob){ return new Promise(res=>{const fr=new FileReader();fr.onload=()=>res(fr.result);fr.readAsDataURL(blob);}); }
+async function base64ToBlob(b64){ const r=await fetch(b64);return await r.blob(); }
+async function importBak(input){
+  const f=input.files&&input.files[0];if(!f)return; if(!confirm('Bestehende Bücher behalten und Backup hinzufügen?'))return;
+  try{
+    const txt=await f.text(); const data=JSON.parse(txt); const arr=data.books||data; const have=new Set(books.map(b=>(b.isbn||b.id))); let added=0;
+    for(const b of arr){ const k=(b.isbn||b.id); if(have.has(k))continue; await DB.put(migrateBook(b));added++; }
+    if(Array.isArray(data.persons)){ const haveP=new Set(persons.map(p=>p.id)); for(const p of data.persons){if(!haveP.has(p.id))await DB.pPut(p);} }
+    if(data.voices){ for(const [vid,v] of Object.entries(data.voices)){ try{ const blob=await base64ToBlob(v.base64); await DB.vPut({id:vid,bookId:v.bookId,blob,createdAt:v.createdAt,duration:v.duration,mime:v.mime}); }catch(_){} } }
+    await loadAll(); toast(`📥 ${added} importiert`,'ok'); renderHome();if(cur==='library')renderLib(); closeSheet('settings');
+  }catch(err){toast('❌ Import Fehler','err');} input.value='';
+}
+async function delAll(){
+  if(!confirm('Wirklich ALLE Bücher löschen?'))return; if(!confirm('Ganz sicher?'))return;
+  await DB.clr();await DB.vClr();await loadAll(); toast('Alles gelöscht','ok');renderHome();if(cur==='library')renderLib(); closeSheet('settings');
+}
+
+/* BOOT */
+(async()=>{
+  try {
+    await DB.open(); await loadAll();
+    const act = document.getElementById('nav-home');
+    act.className = "nav-btn flex flex-col items-center justify-center bg-primary text-white rounded-full p-4 shadow-lg shadow-primary/30 -translate-y-4 transition-all scale-105 custom-bounce";
+    act.querySelector('span:first-child').style.fontVariationSettings = "'FILL' 1";
+    renderHome();
+  } catch(e) { document.body.innerHTML=`<div class="p-10 text-error font-bold">DB Error: ${e.message}</div>`; }
+})();
+</script>
+</body>
+</html>
