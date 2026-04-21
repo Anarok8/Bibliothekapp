@@ -249,9 +249,10 @@
 
 <!-- VIEW: LENT -->
 <main id="view-lent" class="view max-w-7xl mx-auto px-6 pt-6">
-    <header class="mb-10">
+    <header class="mb-6">
         <h1 class="font-headline font-extrabold text-5xl text-on-surface tracking-tight mb-2">Aktuell <span class="text-primary italic">Ausgeliehen</span></h1>
     </header>
+    <div class="flex gap-3 overflow-x-auto no-scrollbar pb-2 mb-6" id="lent-chips"></div>
     <div class="flex flex-col gap-4" id="ll"></div>
 </main>
 
@@ -506,6 +507,7 @@ let mediaRec=null,recChunks=[],recStart=0,recBookId=null;
 let activeReader=null; 
 let libLimit = 40; // Performance: Render limit for library
 let searchTimeout = null; // Performance: Debounce timeout
+let lentFil = 'all'; // Filter für die Ausgeliehen-Ansicht
 
 /* Migration */
 function migrateBook(b){
@@ -717,6 +719,7 @@ function renderReader(pid){
   const done=books.filter(b=>bp(b,pid).status==='done');
   const reading=books.filter(b=>bp(b,pid).status==='reading');
   const favs=books.filter(b=>bp(b,pid).fav);
+  const borrowed=books.filter(b=>b.lent && b.lentTo===p.name);
   const allDates=books.flatMap(b=>(bp(b,pid).finishedDates||[]));
   const totalReads=allDates.length;
   const wkAgo=Date.now()-7*86400000; const thisWeek=allDates.filter(t=>t>=wkAgo).length;
@@ -730,7 +733,7 @@ function renderReader(pid){
       <div class="text-6xl drop-shadow-md">${p.emoji}</div>
       <div>
         <div class="font-headline font-black text-3xl text-on-surface">${e(p.name)}</div>
-        <div class="font-body font-bold text-on-surface/80 mt-1">${totalReads} Bücher • ${favs.length} Lieblinge</div>
+        <div class="font-body font-bold text-on-surface/80 mt-1">${totalReads} Bücher • ${favs.length} Lieblinge • ${borrowed.length} Ausgeliehen</div>
       </div>
     </div>
 
@@ -745,6 +748,7 @@ function renderReader(pid){
       <div class="bg-surface-container-highest p-4 rounded-2xl text-center"><div class="font-headline font-black text-3xl text-primary">${totalReads}</div><div class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant mt-1">Insgesamt</div></div>
     </div>
 
+    ${borrowed.length ? `<h3 class="font-headline font-extrabold text-xl mb-4">📤 Aktuell ausgeliehen</h3> ${list(borrowed)}` : ''}
     <h3 class="font-headline font-extrabold text-xl mb-4">📖 Lese gerade</h3> ${list(reading)}
     <h3 class="font-headline font-extrabold text-xl mb-4">⭐ Lieblinge</h3> ${list(favs)}
     <h3 class="font-headline font-extrabold text-xl mb-4">🏆 Ausgelesen</h3> ${list(done)}
@@ -802,29 +806,55 @@ function renderLib(){
   g.innerHTML=visible.map((b,i)=>crdH(b,i)).join('');
   
   if(fl.length > libLimit) {
-    moreContainer.innerHTML = `<button onclick="libLimit+=40; renderLib();" class="bg-surface-container-highest text-on-surface font-bold py-4 px-8 rounded-full shadow-sm soft-bounce flex items-center gap-2"><span class="material-symbols-outlined">expand_more</span> Mehr laden</button>`;
+    moreContainer.innerHTML = `<button onclick="libLimit+=40; renderLib();" class="bg-surface-container-highest text-on-surface font-bold py-4 px-8 rounded-full shadow-sm soft-bounce flex items-center justify-center gap-2"><span class="material-symbols-outlined">expand_more</span> Mehr laden</button>`;
   } else {
     moreContainer.innerHTML = '';
   }
 }
 
 /* LENT */
+function setLentFil(f){ lentFil=f; renderLent(); }
+
 function renderLent(){
-  const lb=books.filter(b=>b.lent); const l=document.getElementById('ll');if(!l)return;
-  if(!lb.length) l.innerHTML='<div class="p-12 text-center bg-surface-container-low squircle-lg border border-dashed border-outline-variant/40"><div class="text-5xl mb-4">🎉</div><h3 class="font-headline font-bold text-xl mb-2">Alles da!</h3></div>';
-  else l.innerHTML=lb.map(b=>`
-    <div class="bg-surface-container-lowest p-4 squircle-lg flex items-center gap-4 shadow-sm border border-outline-variant/5 soft-bounce">
-      <div class="w-16 h-24 bg-gradient-to-br ${gr(b.id)} rounded-xl overflow-hidden shrink-0 shadow-inner relative">
-        ${isRealCover(b.coverUrl)?`<img src="${e(b.coverUrl)}" class="w-full h-full object-cover">`:''}
+  const lb=books.filter(b=>b.lent); 
+  const l=document.getElementById('ll');
+  const lc=document.getElementById('lent-chips');
+  if(!l)return;
+
+  if(lc){
+    const borrowers = Array.from(new Set(lb.map(b=>b.lentTo))).filter(Boolean);
+    const chipNames = Array.from(new Set([...persons.map(p=>p.name), ...borrowers]));
+    let cHTML = `<button class="${lentFil==='all'?'px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-primary text-white shadow-md shrink-0':'px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0'}" onclick="setLentFil('all')">Alle</button>`;
+    
+    chipNames.forEach(name => {
+      const isSel = lentFil === name;
+      const pObj = persons.find(p => p.name === name);
+      const label = pObj ? `${pObj.emoji} ${e(name)}` : e(name);
+      const cls = isSel ? 'px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-primary text-white shadow-md shrink-0' : 'px-5 py-2.5 rounded-full font-label font-bold text-xs tracking-widest uppercase transition-all bg-surface-container-high text-on-surface-variant hover:bg-surface-container-highest shrink-0';
+      cHTML += `<button class="${cls}" onclick="setLentFil('${e(name).replace(/'/g,"\\'")}')">${label}</button>`;
+    });
+    lc.innerHTML = cHTML;
+  }
+
+  const filteredLb = lb.filter(b => lentFil === 'all' || b.lentTo === lentFil);
+
+  if(!filteredLb.length) {
+    l.innerHTML='<div class="p-12 text-center bg-surface-container-low squircle-lg border border-dashed border-outline-variant/40"><div class="text-5xl mb-4">🎉</div><h3 class="font-headline font-bold text-xl mb-2">Alles da!</h3></div>';
+  } else {
+    l.innerHTML=filteredLb.map(b=>`
+      <div class="bg-surface-container-lowest p-4 squircle-lg flex items-center gap-4 shadow-sm border border-outline-variant/5 soft-bounce">
+        <div class="w-16 h-24 bg-gradient-to-br ${gr(b.id)} rounded-xl overflow-hidden shrink-0 shadow-inner relative">
+          ${isRealCover(b.coverUrl)?`<img src="${e(b.coverUrl)}" class="w-full h-full object-cover">`:''}
+        </div>
+        <div class="flex-1 min-w-0">
+          <h3 class="font-headline font-bold text-lg truncate">${e(b.title)}</h3>
+          <p class="text-sm text-on-surface-variant truncate">${e(b.author||'–')}</p>
+          <div class="inline-flex items-center gap-1.5 mt-3 bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm"><span>🧑</span> ${e(b.lentTo)}</div>
+        </div>
+        <button onclick="retBook('${b.id}')" class="w-14 h-14 rounded-full bg-secondary text-on-secondary flex items-center justify-center shrink-0 shadow-md hover:scale-105 active:scale-95 transition-all"><span class="material-symbols-outlined text-3xl">keyboard_return</span></button>
       </div>
-      <div class="flex-1 min-w-0">
-        <h3 class="font-headline font-bold text-lg truncate">${e(b.title)}</h3>
-        <p class="text-sm text-on-surface-variant truncate">${e(b.author||'–')}</p>
-        <div class="inline-flex items-center gap-1.5 mt-3 bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm"><span>🧑</span> ${e(b.lentTo)}</div>
-      </div>
-      <button onclick="retBook('${b.id}')" class="w-14 h-14 rounded-full bg-secondary text-on-secondary flex items-center justify-center shrink-0 shadow-md hover:scale-105 active:scale-95 transition-all"><span class="material-symbols-outlined text-3xl">keyboard_return</span></button>
-    </div>
-  `).join('');
+    `).join('');
+  }
 }
 async function retBook(id){
   vib([8,50,8]);const b=await DB.get(id);if(!b)return;
@@ -1046,7 +1076,7 @@ async function lendBk(id){
   if(!n){toast('❗ Person angeben','err');return;}
   const b=migrateBook(await DB.get(id));if(!b)return;
   b.lent=true;b.lentTo=n;b.lentAt=Date.now(); await DB.put(b);await loadAll();
-  vib([10,40,10]);toast(`📤 An ${n} verliehen`,'ok'); closeSheet('book');renderHome();if(cur==='library')renderLib();if(cur==='lent')renderLent();
+  vib([10,40,10]);toast(`📤 An ${n} verliehen`,'ok'); closeSheet('book'); playBling(); renderHome();if(cur==='library')renderLib();if(cur==='lent')renderLent();
 }
 async function saveEdit(id){
   const t=document.getElementById('et')?.value.trim()||''; if(!t){toast('❗ Titel fehlt','err');return;}
